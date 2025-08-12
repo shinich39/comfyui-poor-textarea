@@ -2,7 +2,7 @@
 @author: shinich39
 @title: comfyui-poor-textarea
 @nickname: comfyui-poor-textarea
-@version: 1.0.0
+@version: 1.0.1
 @description: Add commentify, indentation, auto-close brackets in textarea.
 """
 

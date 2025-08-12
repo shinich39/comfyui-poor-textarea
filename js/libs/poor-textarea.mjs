@@ -133,7 +133,11 @@ var init = function(element, options) {
         } else {
           newCursorStart += Math.max(diff, startIndex - cursorStart);
         }
-        newCursorEnd += diff;
+        if (diff >= 0) {
+          newCursorEnd += diff;
+        } else {
+          newCursorEnd += Math.max(diff, startIndex - cursorEnd);
+        }
       } else if (inRange(cursorEnd, startIndex, endIndex)) {
         if (diff >= 0) {
           newCursorEnd += diff;
@@ -184,14 +188,14 @@ var init = function(element, options) {
       const rows = getRows();
       let isComment = false;
       for (const r of rows) {
-        if (r.isSelected && r.value.trim() && r.value.startsWith("//")) {
+        if (r.isSelected && r.value.startsWith("//")) {
           isComment = true;
           break;
         }
       }
       editSelectedRows(
         rows,
-        (row) => isComment ? row.value.replace(/^\/\/\s?/, "") : "// " + row.value
+        (row) => isComment ? row.value.replace(/^\/\/\s?/, "") : row.value.trim() ? "// " + row.value : row.value
       );
       addHistory();
     } else if (isIndentation(e)) {
@@ -199,7 +203,7 @@ var init = function(element, options) {
       const rows = getRows();
       editSelectedRows(
         rows,
-        (row) => e.shiftKey ? row.value.replace(/^\s{1,2}/, "") : "  " + row.value
+        (row) => e.shiftKey ? row.value.replace(/^\s{1,2}/, "") : row.value.trim() ? "  " + row.value : row.value
       );
       addHistory();
     } else if (isBracket(e)) {

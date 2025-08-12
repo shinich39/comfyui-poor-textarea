@@ -1,7 +1,7 @@
 [project]
 name = "comfyui-poor-textarea"
 description = "Add commentify, indentation, auto-close brackets in textarea."
-version = "1.0.0"
+version = "1.0.1"
 license = { file = "LICENSE" }
 
 [project.urls]
