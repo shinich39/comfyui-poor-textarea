@@ -5,17 +5,17 @@ function inRange(value, min, max) {
 function isUndo(e) {
   const { key } = e;
   const ctrlKey = e.ctrlKey || e.metaKey;
-  return key === "z" && ctrlKey;
+  return key.toLowerCase() === "z" && ctrlKey;
 }
 function isRedo(e) {
   const { key, shiftKey } = e;
   const ctrlKey = e.ctrlKey || e.metaKey;
-  return key === "z" && ctrlKey && shiftKey;
+  return key.toLowerCase() === "z" && ctrlKey && shiftKey;
 }
 function isIndentation(e) {
   const { key } = e;
   const ctrlKey = e.ctrlKey || e.metaKey;
-  return key === "Tab" && !ctrlKey;
+  return key.toLowerCase() === "tab" && !ctrlKey;
 }
 function isCommentify(e) {
   const { key } = e;
@@ -32,6 +32,15 @@ var init = function(element, options) {
     "'": "'",
     '"': '"',
     "`": "`"
+  };
+  const callbacks = {
+    onUndo: null,
+    onRedo: null,
+    onKeydown: null,
+    onKeyup: null,
+    onMouseup: null,
+    onBeforeinput: null,
+    onInput: null
   };
   let histories = [], historyIndex = 1;
   const isBracket = function(e) {
@@ -170,19 +179,21 @@ var init = function(element, options) {
       setCursor(start, end, isReversed);
     }
   };
-  element.addEventListener("keydown", (e) => {
+  const keydownHandler = (e) => {
     if (isRedo(e)) {
       e.preventDefault();
       const h = getNextHistory();
       if (h) {
         loadHistory(h);
       }
+      callbacks.onRedo?.(e, histories);
     } else if (isUndo(e)) {
       e.preventDefault();
       const h = getPrevHistory();
       if (h) {
         loadHistory(h);
       }
+      callbacks.onUndo?.(e, histories);
     } else if (isCommentify(e)) {
       e.preventDefault();
       const rows = getRows();
@@ -214,38 +225,49 @@ var init = function(element, options) {
       closeBracket(e);
       addHistory();
     }
-  });
-  element.addEventListener("keyup", (e) => {
+    callbacks.onKeydown?.(e, histories);
+  };
+  const keyupHandler = (e) => {
     if ([
-      "ArrowLeft",
-      "ArrowRight",
-      "ArrowUp",
-      "ArrowDown",
-      "Home",
-      "End",
-      "PageUp",
-      "PageDown",
-      "Escape"
-      // 'Tab'
-    ].includes(e.key)) {
+      "arrowleft",
+      "arrowright",
+      "arrowup",
+      "arrowdown",
+      "home",
+      "end",
+      "pageup",
+      "pagedown",
+      "escape"
+      // 'tab'
+    ].includes(e.key.toLowerCase())) {
       if (historyIndex === 1) {
         addHistory();
       }
+      callbacks.onKeyup?.(e, histories);
     }
-  });
-  element.addEventListener("mouseup", (e) => {
+  };
+  const mouseupHandler = (e) => {
     if (historyIndex === 1) {
       addHistory();
     }
-  });
-  element.addEventListener("beforeinput", (e) => {
+    callbacks.onMouseup?.(e, histories);
+  };
+  const beforeinputHandler = (e) => {
     if (historyIndex !== 1) {
       addHistory();
     }
-  });
-  element.addEventListener("input", (e) => {
+    callbacks.onBeforeinput?.(e, histories);
+  };
+  const inputHandler = (e) => {
     addHistory();
-  });
+    callbacks.onInput?.(e, histories);
+  };
+  element.addEventListener("keydown", keydownHandler);
+  element.addEventListener("keyup", keyupHandler);
+  element.addEventListener("mouseup", mouseupHandler);
+  element.addEventListener("beforeinput", beforeinputHandler);
+  element.addEventListener("input", inputHandler);
+  return callbacks;
 };
 export {
   init

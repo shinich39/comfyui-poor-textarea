@@ -22,7 +22,7 @@ app.registerExtension({
     
       const elem = r.widget.element;
 
-      init(elem, {
+      const callbacks = init(elem, {
         pairs: {
           "{": "}",
           "(": ")",
