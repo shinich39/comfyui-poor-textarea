@@ -1,6 +1,6 @@
 {
   "name": "comfyui-poor-textarea",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Add commentify, indentation, auto-close brackets in textarea.",
   "type": "module",
   "scripts": {

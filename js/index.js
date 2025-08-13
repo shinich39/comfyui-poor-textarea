@@ -22,7 +22,12 @@ app.registerExtension({
     
       const elem = r.widget.element;
 
-      init(elem);
+      init(elem, {
+        pairs: {
+          "{": "}",
+          "(": ")",
+        }
+      });
 
       return r;
     };

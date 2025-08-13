@@ -8,4 +8,4 @@ Ctrl + \/: Commentify
 
 Tab: Indentation
 
-{, [, (, &lt;: auto-close brackets
+{, (: auto-close brackets
