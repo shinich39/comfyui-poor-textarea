@@ -47,6 +47,9 @@ var init = function(element, options) {
     const { key } = e;
     return Object.keys(pairs).includes(key);
   };
+  const isRangeSelection = function() {
+    return element.selectionStart !== element.selectionEnd;
+  };
   const getCursor = function() {
     const cursorStart = Math.min(element.selectionStart, element.selectionEnd);
     const cursorEnd = Math.max(element.selectionStart, element.selectionEnd);
@@ -123,6 +126,7 @@ var init = function(element, options) {
   };
   const editSelectedRows = function(rows, callback) {
     const { cursorStart, cursorEnd, isReversed } = getCursor();
+    const isRange = cursorStart !== cursorEnd;
     let newCursorStart = cursorStart, newCursorEnd = cursorEnd;
     const rowValues = [];
     for (const r of rows) {
@@ -136,9 +140,7 @@ var init = function(element, options) {
       const diff = newValue.length - origValue.length;
       if (inRange(cursorStart, startIndex, endIndex)) {
         if (diff >= 0) {
-          if (cursorStart !== startIndex) {
-            newCursorStart += diff;
-          }
+          newCursorStart += diff;
         } else {
           newCursorStart += Math.max(diff, startIndex - cursorStart);
         }
@@ -206,7 +208,7 @@ var init = function(element, options) {
       }
       editSelectedRows(
         rows,
-        (row) => isComment ? row.value.replace(/^\/\/\s?/, "") : row.value.trim() ? "// " + row.value : row.value
+        (row) => isComment ? row.value.replace(/^\/\/\s?/, "") : row.value.trim() || !isRangeSelection() ? "// " + row.value : row.value
       );
       addHistory();
     } else if (isIndentation(e)) {
@@ -214,7 +216,7 @@ var init = function(element, options) {
       const rows = getRows();
       editSelectedRows(
         rows,
-        (row) => e.shiftKey ? row.value.replace(/^\s{1,2}/, "") : row.value.trim() ? "  " + row.value : row.value
+        (row) => e.shiftKey ? row.value.replace(/^\s{1,2}/, "") : row.value.trim() || !isRangeSelection() ? "  " + row.value : row.value
       );
       addHistory();
     } else if (isBracket(e)) {
